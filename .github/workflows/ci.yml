@@ -18,6 +18,11 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v2
 
+      - name: Load .env file
+        uses: google-github-actions/setup-gcloud@v0
+        with:
+          env_file: .env
+
       - name: Set up Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v2
         with:
@@ -31,3 +36,11 @@ jobs:
 
       - name: Build project
         run: npm run build
+
+      - name: Deploy to Heroku
+        env:
+          HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
+        run: |
+          HEROKU_API_KEY=$(grep HEROKU_API_KEY .env | cut -d '=' -f2)
+          git remote add heroku https://git.heroku.com/<nodejs-training>.git
+          git push heroku main
